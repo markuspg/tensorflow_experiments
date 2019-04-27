@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import os
+import random
 import tensorflow as tf
 
 workspaceDir = "/home/maprasser/workspace"
 
 def main():
+    # load all WAVE files into a list and their tags into another list
     labels = list()
     labelsList = list()
     tensorsList = list()
@@ -23,6 +25,11 @@ def main():
                 tf.io.read_file(os.path.join(root, filename)),
                 desired_channels=1, desired_samples=8192))
     assert len(labelsList) == len(tensorsList)
+
+    # shuffle the two lists simultaneously
+    shuffleList = list(zip(labelsList, tensorsList))
+    random.shuffle(shuffleList)
+    labelsList, tensorsList = zip(*shuffleList)
 
 if __name__ == "__main__":
     main()
