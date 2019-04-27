@@ -23,7 +23,7 @@ def main():
             tensorsList.append(
               tf.audio.decode_wav(
                 tf.io.read_file(os.path.join(root, filename)),
-                desired_channels=1, desired_samples=8192))
+                desired_channels=1, desired_samples=8192)[0])
     assert len(labelsList) == len(tensorsList)
 
     # shuffle the two lists simultaneously
