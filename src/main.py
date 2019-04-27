@@ -55,6 +55,21 @@ def main():
     assert len(testLabels) + len(trainLabels) + len(validationLabels) \
       == len(labelsList)
 
+    trainTensor = tf.stack(trainData)
+    trainLabelsTensor = tf.stack(trainLabels)
+
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(8192,1)),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dense(1024, activation='relu'),
+        tf.keras.layers.Dense(len(labels), activation='softmax')
+    ])
+
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    model.fit(trainTensor, trainLabelsTensor, epochs=5)
+
 if __name__ == "__main__":
     main()
 
