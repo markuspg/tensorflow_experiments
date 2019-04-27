@@ -68,7 +68,13 @@ def main():
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
-    model.fit(trainTensor, trainLabelsTensor, epochs=5)
+    checkpointPath = "training/cp.ckpt"
+    checkPointDir = os.path.dirname(checkpointPath)
+    cpCallback = tf.keras.callbacks.ModelCheckpoint(checkpointPath,
+                                                    save_weights_only=True,
+                                                    verbose=1)
+
+    model.fit(trainTensor, trainLabelsTensor, callbacks=[cpCallback], epochs=5)
 
 if __name__ == "__main__":
     main()
