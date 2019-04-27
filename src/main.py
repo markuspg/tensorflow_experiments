@@ -104,6 +104,13 @@ def main():
     trainModel.save_weights(checkpointPath.format(epoch=0))
     trainModel.fit(trainTensor, trainLabelsTensor, callbacks=[cpCallback],
                    epochs=5)
+    tfliteModel = tf.function(lambda x : trainModel(x))
+    concrete_func = tfliteModel.get_concrete_function(
+      tf.TensorSpec(trainModel.inputs[0].shape, trainModel.inputs[0].dtype))
+    converter = tf.lite.TFLiteConverter.from_concrete_function(concrete_func)
+    tfliteModel = converter.convert()
+    with open("speechModel.tflite", 'wb') as tfliteModelFile:
+        tfliteModelFile.write(tfliteModel)
     trainModel.save("speechModel.h5")
 
     testModelA = CreateModel(len(labels))

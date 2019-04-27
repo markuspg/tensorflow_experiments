@@ -4,3 +4,4 @@
 # Files
 *.h5
 .*.swp
+*.tflite
