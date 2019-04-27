@@ -6,6 +6,20 @@ import tensorflow as tf
 
 workspaceDir = "/home/maprasser/workspace"
 
+def CreateModel(argLabelsLength):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(8192,1)),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dense(1024, activation='relu'),
+        tf.keras.layers.Dense(argLabelsLength, activation='softmax')
+    ])
+
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    return model
+
+
 def main():
     # load all WAVE files into a list and their tags into another list
     labels = list()
@@ -55,26 +69,25 @@ def main():
     assert len(testLabels) + len(trainLabels) + len(validationLabels) \
       == len(labelsList)
 
+    testTensor = tf.stack(testData)
+    testLabelsTensor = tf.stack(testLabels)
     trainTensor = tf.stack(trainData)
     trainLabelsTensor = tf.stack(trainLabels)
 
-    model = tf.keras.Sequential([
-        tf.keras.layers.Flatten(input_shape=(8192,1)),
-        tf.keras.layers.Dense(512, activation='relu'),
-        tf.keras.layers.Dense(1024, activation='relu'),
-        tf.keras.layers.Dense(len(labels), activation='softmax')
-    ])
-
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-
-    checkpointPath = "training/cp.ckpt"
+    checkpointPath = "training/cp-{epoch:04d}.ckpt"
     checkPointDir = os.path.dirname(checkpointPath)
     cpCallback = tf.keras.callbacks.ModelCheckpoint(checkpointPath,
                                                     save_weights_only=True,
                                                     verbose=1)
+    trainModel = CreateModel(len(labels))
+    trainModel.save_weights(checkpointPath.format(epoch=0))
+    trainModel.fit(trainTensor, trainLabelsTensor, callbacks=[cpCallback],
+                   epochs=5)
 
-    model.fit(trainTensor, trainLabelsTensor, callbacks=[cpCallback], epochs=5)
+    testModel = CreateModel(len(labels))
+    testModel.load_weights(tf.train.latest_checkpoint(checkPointDir))
+    loss, acc = testModel.evaluate(testTensor, testLabelsTensor)
+    print("Test model accuracy: {:5.2f}%".format(100 * acc))
 
 if __name__ == "__main__":
     main()
