@@ -83,11 +83,16 @@ def main():
     trainModel.save_weights(checkpointPath.format(epoch=0))
     trainModel.fit(trainTensor, trainLabelsTensor, callbacks=[cpCallback],
                    epochs=5)
+    trainModel.save("speechModel.h5")
 
-    testModel = CreateModel(len(labels))
-    testModel.load_weights(tf.train.latest_checkpoint(checkPointDir))
-    loss, acc = testModel.evaluate(testTensor, testLabelsTensor)
-    print("Test model accuracy: {:5.2f}%".format(100 * acc))
+    testModelA = CreateModel(len(labels))
+    testModelA.load_weights(tf.train.latest_checkpoint(checkPointDir))
+    loss, acc = testModelA.evaluate(testTensor, testLabelsTensor)
+    print("Test model 'A' accuracy: {:5.2f}%".format(100 * acc))
+
+    testModelB = tf.keras.models.load_model("speechModel.h5")
+    loss, acc = testModelB.evaluate(testTensor, testLabelsTensor)
+    print("Test model 'B' accuracy: {:5.2f}%".format(100 * acc))
 
 if __name__ == "__main__":
     main()

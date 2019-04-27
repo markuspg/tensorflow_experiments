@@ -2,4 +2,5 @@
 /training/
 
 # Files
+*.h5
 .*.swp
