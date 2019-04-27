@@ -31,6 +31,30 @@ def main():
     random.shuffle(shuffleList)
     labelsList, tensorsList = zip(*shuffleList)
 
+    # split into the three categories: training, testing, validation
+    testData = list()
+    testLabels = list()
+    trainData = list()
+    trainLabels = list()
+    validationData = list()
+    validationLabels = list()
+    random.seed()
+    for combinedItem in zip(labelsList, tensorsList):
+        divider = random.random()
+        if divider < 0.7:
+            trainLabels.append(combinedItem[0])
+            trainData.append(combinedItem[1])
+        elif divider >= 0.7 and divider < 0.9:
+            validationLabels.append(combinedItem[0])
+            validationData.append(combinedItem[1])
+        else:
+            testLabels.append(combinedItem[0])
+            testData.append(combinedItem[1])
+    assert len(testData) + len(trainData) + len(validationData) \
+      == len(tensorsList)
+    assert len(testLabels) + len(trainLabels) + len(validationLabels) \
+      == len(labelsList)
+
 if __name__ == "__main__":
     main()
 
